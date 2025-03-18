@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.30)
-project(TaskWeaver)
+project(TaskWeaver VERSION 0.0.1.0)
 
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
