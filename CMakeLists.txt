@@ -3,9 +3,11 @@ project(TaskWeaver VERSION 0.0.1.0)
 
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
+file(GLOB TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp")
+file(GLOB TEST_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.h")
 
 include(ClangFormat.cmake)
-set(ALL_FILES_TO_ADJUST_CODESTYLE ${SOURCE_FILES} ${HEADER_FILES})
+set(ALL_FILES_TO_ADJUST_CODESTYLE ${SOURCE_FILES} ${HEADER_FILES} ${TEST_SOURCES} ${TEST_HEADERS})
 CODE_STYLE_CORRECTION("${ALL_FILES_TO_ADJUST_CODESTYLE}")
 
 add_library(TaskWeaver
@@ -37,6 +39,4 @@ endif()
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} Threads::Threads)
 
-find_package(GTest REQUIRED)
-
-enable_testing()
+add_subdirectory("tests")
