@@ -15,4 +15,4 @@ manager to create and share all your native binaries.
 
 1. Install conan: [Installation instruction](https://docs.conan.io/2/installation.html)
 
-2. Setup project: conan install . -s build_type=<Debug|Release> --build=missing --output-folder=\<Output folder>
+2. Setup project: `conan install . -s build_type=<Debug|Release> --build=missing --output-folder=<Output folder>`
