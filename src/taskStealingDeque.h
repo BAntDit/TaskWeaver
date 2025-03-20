@@ -42,7 +42,7 @@ public:
 
     [[nodiscard]] auto Capacity() const -> size_t { return data_->capacity(); }
 
-    [[nodiscard]] auto Empty() const -> bool;
+    [[nodiscard]] auto IsEmpty() const -> bool;
 
     // can be called in producer thread only
     template<typename... Args>
@@ -59,8 +59,14 @@ public:
 private:
     [[nodiscard]] auto CountItems() const -> size_t;
 
+#if defined(TESTING)
+public:
+#endif
     alignas(hardware_destructive_interference_size) std::atomic<uint64_t> top_;
     alignas(hardware_destructive_interference_size) std::atomic<uint64_t> bottom_;
+#if defined(TESTING)
+private:
+#endif
     alignas(hardware_destructive_interference_size) data_t* data_;
 };
 
@@ -98,12 +104,12 @@ TaskStealingDeque<T>::~TaskStealingDeque()
 }
 
 template<DequeItemConcept T>
-auto TaskStealingDeque<T>::Empty() const -> bool
+auto TaskStealingDeque<T>::IsEmpty() const -> bool
 {
     auto bottom = bottom_.load(std::memory_order_acquire);
     auto top = top_.load(std::memory_order_acquire);
 
-    return top != bottom;
+    return top == bottom;
 }
 
 template<DequeItemConcept T>
