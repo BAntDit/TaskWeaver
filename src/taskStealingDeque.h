@@ -157,9 +157,6 @@ auto TaskStealingDeque<T>::TrySteal() -> std::optional<T>
     return result;
 }
 
-// --2---------------
-// 0 -----------------
-
 template<DequeItemConcept T>
 auto TaskStealingDeque<T>::TryPop() -> std::optional<T>
 {
@@ -169,10 +166,10 @@ auto TaskStealingDeque<T>::TryPop() -> std::optional<T>
     auto top = top_.load(std::memory_order_acquire);
 
     if (bottom != top) { // not empty
-        auto reserved = bottom--;
+        auto prev = bottom--;
         bottom_.store(bottom, std::memory_order_release);
 
-        if (reserved == top_.load(std::memory_order_acquire)) { // someone stole everything
+        if (prev == top_.load(std::memory_order_acquire)) { // someone stole everything
             bottom_.store(bottom + 1, std::memory_order_relaxed);
         } else {
             result = data_->load(static_cast<size_t>(bottom));
