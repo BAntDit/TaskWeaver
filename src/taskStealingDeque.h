@@ -106,6 +106,8 @@ TaskStealingDeque<T>::~TaskStealingDeque()
 template<DequeItemConcept T>
 auto TaskStealingDeque<T>::IsEmpty() const -> bool
 {
+    std::atomic_thread_fence(std::memory_order_release);
+
     auto bottom = bottom_.load(std::memory_order_acquire);
     auto top = top_.load(std::memory_order_acquire);
 
@@ -144,16 +146,19 @@ auto TaskStealingDeque<T>::TrySteal() -> std::optional<T>
     std::atomic_thread_fence(std::memory_order_release);
     auto bottom = bottom_.load(std::memory_order_acquire);
 
-    if (top != bottom) {
+    if (top != bottom) { // not empty
         result = data_->load(static_cast<size_t>(top));
-    }
 
-    if (!top_.compare_exchange_strong(top, top + 1, std::memory_order_acq_rel, std::memory_order_relaxed)) {
-        result = std::nullopt;
+        if (!top_.compare_exchange_strong(top, top + 1, std::memory_order_acq_rel, std::memory_order_relaxed)) {
+            result = std::nullopt;
+        }
     }
 
     return result;
 }
+
+// --2---------------
+// 0 -----------------
 
 template<DequeItemConcept T>
 auto TaskStealingDeque<T>::TryPop() -> std::optional<T>
@@ -170,7 +175,7 @@ auto TaskStealingDeque<T>::TryPop() -> std::optional<T>
         if (reserved == top_.load(std::memory_order_acquire)) { // someone stole everything
             bottom_.store(bottom + 1, std::memory_order_relaxed);
         } else {
-            result = data_->load(static_cast<size_t>(reserved));
+            result = data_->load(static_cast<size_t>(bottom));
         }
     }
 
