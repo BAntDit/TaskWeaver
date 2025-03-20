@@ -15,7 +15,7 @@ template<typename T>
 concept TaskFunctorConcept = !
 std::is_same_v<std::decay_t<T>, Task>;
 
-class alignas(hardware_constructive_interference_size) Task
+class alignas(hardware_destructive_interference_size) Task
 {
     static constexpr size_t storage_align_v = alignof(void (*)());
     static constexpr size_t storage_size_v = 64;
