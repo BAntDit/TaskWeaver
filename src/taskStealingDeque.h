@@ -120,7 +120,7 @@ auto TaskStealingDeque<T>::CountItems() const -> size_t
     auto bottom = bottom_.load(std::memory_order_relaxed);
     auto top = top_.load(std::memory_order_acquire);
 
-    return static_cast<size_t>((bottom >= top) ? bottom - top : (Capacity() - top + bottom));
+    return static_cast<size_t>((bottom >= top) ? bottom - top : (std::numeric_limits<uint64_t>::max() - top + bottom));
 }
 
 template<DequeItemConcept T>
