@@ -9,13 +9,19 @@ manager to create and share all your native binaries.
 
 ## Dependencies
 
-[GTest](https://github.com/google/googletest) - Google Testing and Mocking Framework
+1. [GTest](https://github.com/google/googletest) - Google Testing and Mocking Framework
+2. [Metrix](https://github.com/BAntDit/easy-mp) - Meta-programming tricks library
 
 ## Project setup 
 
 1. Install conan: [Installation instruction](https://docs.conan.io/2/installation.html)
 
-2. Setup project: `conan install . -s build_type=<Debug|Release> --build=missing --output-folder=<Output folder>`
+2. Install metrix: 
+    - `git clone git@github.com:BAntDit/easy-mp.git` - clone
+    - `conan install . -s build_type=Release --build=missing --output-folder=cmake-build-release` - install
+    - `conan create . -s build_type=Release` - create local package
+
+3. Setup project: `conan install . -s build_type=<Debug|Release> --build=missing --output-folder=<Output folder>`
 
 ## Version 
 
