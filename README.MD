@@ -19,7 +19,7 @@ manager to create and share all your native binaries.
 2. Install metrix: 
     - `git clone git@github.com:BAntDit/easy-mp.git` - clone
     - `conan install . -s build_type=Release --build=missing --output-folder=cmake-build-release` - install
-    - `conan create . -s build_type=Release` - create local package
+    - `sudo make install`
 
 3. Setup project: `conan install . -s build_type=<Debug|Release> --build=missing --output-folder=<Output folder>`
 
