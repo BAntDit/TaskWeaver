@@ -6,10 +6,10 @@
 
 namespace taskweaver {
 TaskManager::TaskManager(size_t taskQueueSize /* = 256*/,
-                         size_t executorCount /*= std::max(std::thread::hardware_concurrency(), 2u) - 1u*/)
+                         size_t threadPoolSize /* = std::max(std::thread::hardware_concurrency(), 1u)*/)
   : threadPool_{}
-  , executorCount_{ executorCount }
-  , executors_{ make_unique_for_overwrite<Executor[]>(executorCount) }
+  , executorCount_{ threadPoolSize + 1 } // plus main thread
+  , executors_{ make_unique_for_overwrite<Executor[]>(executorCount_) }
   , alive_{ true }
 #if defined(ALLOW_THREAD_EXCEPTIONS_PROPAGATION)
   , exPropagationMutex_{}
@@ -20,18 +20,24 @@ TaskManager::TaskManager(size_t taskQueueSize /* = 256*/,
         new (&executors_[i]) Executor{ *this, taskQueueSize };
     }
 
-    threadPool_.reserve(executorCount_);
+    threadPool_.reserve(threadPoolSize);
+
+    executors_[0]._SetAsMainThreadExecutor();
 }
 
 TaskManager::~TaskManager()
 {
     Stop();
+
+    executors_[0]._ResetMainThreadExecutor();
 }
 
 void TaskManager::Start()
 {
+    assert(Executor::IsInMainThread());
+
     for (auto i = size_t{ 0 }; i < executorCount_; i++) {
-        threadPool_.emplace_back([](Executor& executor) -> void { executor(); }, std::ref(executors_[i]));
+        threadPool_.emplace_back([](Executor& executor) -> void { executor(); }, std::ref(executors_[i + 1]));
     }
 }
 

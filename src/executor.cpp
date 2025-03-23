@@ -22,6 +22,7 @@
 
 namespace taskweaver {
 namespace {
+thread_local Executor* _mainThreadExecutor = nullptr;
 thread_local Executor* _threadExecutor = nullptr;
 
 auto randomExecutorIndex(size_t executorCount) -> size_t
@@ -35,6 +36,11 @@ auto randomExecutorIndex(size_t executorCount) -> size_t
 
     return static_cast<size_t>(distribution(generator));
 }
+}
+
+/*static*/ auto Executor::IsInMainThread() -> bool
+{
+    return _mainThreadExecutor != nullptr;
 }
 
 /*static*/ auto Executor::ThreadExecutor() -> Executor&
@@ -69,6 +75,9 @@ void Executor::RunOne()
 
 void Executor::Run()
 {
+    if (IsInMainThread())
+        return;
+
     _SetThreadExecutorPtr();
 
     BEGIN_EXCEPTION_PROPAGATION();
@@ -92,6 +101,23 @@ void Executor::_SetThreadExecutorPtr()
 
 void Executor::_ResetThreadExecutorPtr()
 {
+    _threadExecutor = nullptr;
+
+    threadId_ = std::thread::id{};
+}
+
+void Executor::_SetAsMainThreadExecutor()
+{
+    assert(_mainThreadExecutor == nullptr);
+    _mainThreadExecutor = this;
+    _threadExecutor = this;
+
+    threadId_ = std::this_thread::get_id();
+}
+
+void Executor::_ResetMainThreadExecutor()
+{
+    _mainThreadExecutor = nullptr;
     _threadExecutor = nullptr;
 
     threadId_ = std::thread::id{};

@@ -14,7 +14,7 @@ class TaskManager
     friend class Executor;
 
 public:
-    TaskManager(size_t taskQueueSize = 256, size_t executorCount = std::max(std::thread::hardware_concurrency(), 2u));
+    TaskManager(size_t taskQueueSize = 256, size_t threadPoolSize = std::max(std::thread::hardware_concurrency(), 1u));
 
     TaskManager(TaskManager const&) = delete;
 

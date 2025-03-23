@@ -48,6 +48,8 @@ public:
 
     [[nodiscard]] auto TaskManager() -> taskweaver::TaskManager& { return *taskManager_; }
 
+    static auto IsInMainThread() -> bool;
+
     static auto ThreadExecutor() -> Executor&;
 
 private:
@@ -62,6 +64,10 @@ private:
     void _SetThreadExecutorPtr();
 
     void _ResetThreadExecutorPtr();
+
+    void _SetAsMainThreadExecutor();
+
+    void _ResetMainThreadExecutor();
 
 private:
     std::thread::id threadId_;
