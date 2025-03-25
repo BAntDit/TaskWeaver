@@ -25,6 +25,6 @@ manager to create and share all your native binaries.
 
 ## Version 
 
-v0.1.0.0
+v0.2.0.0
 
 [changelog](CHANGELOG.md)
