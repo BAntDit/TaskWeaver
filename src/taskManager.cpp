@@ -37,7 +37,11 @@ void TaskManager::Start()
     assert(Executor::IsInMainThread());
 
     for (auto i = size_t{ 0 }; i < executorCount_; i++) {
-        threadPool_.emplace_back([](Executor& executor) -> void { executor(); }, std::ref(executors_[i + 1]));
+        if (executors_[i].CanSubmit()) {
+            executors_[i]();
+        } else {
+            threadPool_.emplace_back([](Executor &executor) -> void { executor(); }, std::ref(executors_[i]));
+        }
     }
 }
 
