@@ -40,7 +40,7 @@ void TaskManager::Start()
         if (executors_[i].CanSubmit()) {
             executors_[i]();
         } else {
-            threadPool_.emplace_back([](Executor &executor) -> void { executor(); }, std::ref(executors_[i]));
+            threadPool_.emplace_back([](Executor& executor) -> void { executor(); }, std::ref(executors_[i]));
         }
     }
 }
