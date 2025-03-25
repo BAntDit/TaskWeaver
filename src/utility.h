@@ -7,14 +7,15 @@
 
 #include "common.h"
 #include "taskManager.h"
+#include <tuple>
 #include <metrix/containers.h>
 #include <metrix/type_traits.h>
 
 namespace taskweaver {
-namespace internal {
-struct void_result_t
+struct void_future_result_t
 {};
 
+namespace internal {
 template<typename F>
 struct get_future_type;
 
@@ -27,16 +28,15 @@ struct get_future_type<std::future<T>>
 template<>
 struct get_future_type<std::future<void>>
 {
-    using type_t = void_result_t;
+    using type_t = void_future_result_t;
 };
 
 template<typename R>
-auto get_one_future_result(std::future<R>&& f)
-  -> std::conditional_t<std::is_same_v<void, R>, internal::void_result_t, R>
+auto get_one_future_result(std::future<R>&& f) -> std::conditional_t<std::is_same_v<void, R>, void_future_result_t, R>
 {
     if constexpr (std::is_same_v<R, void>) {
         f.get();
-        return internal::void_result_t{};
+        return void_future_result_t{};
     } else {
         return f.get();
     }
@@ -62,14 +62,14 @@ auto when_all(F&&... f) -> std::future<std::tuple<future_type_t<F>...>>
 {
     auto promise = std::promise<std::tuple<future_type_t<F>...>>{};
     auto future = promise.get_future();
-    auto futures = std::forward_as_tuple(std::forward<F>(f)...);
+    auto futures = std::make_tuple(std::move(f)...);
 
-    Executor::ThreadExecutor().SubmitTask([p = std::move(promise), fs = std::move(futures)]() -> void {
-        []<size_t... I>(std::index_sequence<I...>, auto& futures, auto& promise)->void
+    Executor::ThreadExecutor().SubmitTask([p = std::move(promise), fs = std::move(futures)]() mutable -> void {
+        []<size_t... I>(std::index_sequence<I...>, auto&& futures, auto&& promise)->void
         {
-            promise.set_value(std::make_tuple(internal::get_one_future_result(std::get<I>(futures))...));
+            promise.set_value(std::make_tuple(internal::get_one_future_result(std::move(std::get<I>(futures)))...));
         }
-        (std::make_index_sequence<std::size(futures)>{}, std::move(fs), std::move(p));
+        (std::make_index_sequence<std::tuple_size_v<decltype(fs)>>{}, std::move(fs), std::move(p));
     });
 
     return future;
@@ -84,7 +84,7 @@ auto when_all(C const& container) -> std::future<std::vector<future_type_t<typen
     auto promise = std::promise<decltype(v)>{};
     auto future = promise.get_future();
 
-    Executor::ThreadExecutor().SubmitTask([&container, v = std::move(v), p = std::move(promise)]() -> void {
+    Executor::ThreadExecutor().SubmitTask([&container, v = std::move(v), p = std::move(promise)]() mutable -> void {
         for (auto&& f : container) {
             v.emplace_back(internal::get_one_future_result(f));
         }
@@ -104,7 +104,7 @@ auto when_all(InputIt first, InputIt last)
     auto promise = std::promise<decltype(v)>{};
     auto future = promise.get_future();
 
-    Executor::ThreadExecutor().SubmitTask([first, last, v = std::move(v), p = std::move(promise)]() -> void {
+    Executor::ThreadExecutor().SubmitTask([first, last, v = std::move(v), p = std::move(promise)]() mutable -> void {
         for (auto it = first; it != last; it++) {
             v.emplace_back(internal::get_one_future_result(*it));
         }
