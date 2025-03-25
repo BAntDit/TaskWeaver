@@ -82,7 +82,28 @@ void parrallelComputationWhenAllTest()
     }
 }
 
+void whenAnyTest() {
+    auto futures = std::array{ taskweaver::TaskManager::SubmitTask([]() -> uint32_t {
+        std::this_thread::sleep_for(std::chrono::seconds{ 2 });
+        return 2;
+    }), taskweaver::TaskManager::SubmitTask([]() -> uint32_t {
+        std::this_thread::sleep_for(std::chrono::seconds{ 1 });
+        return 1;
+    }) };
+
+    auto res = taskweaver::when_any(futures.begin(), futures.end()).get();
+
+    auto b = (res.result == 2 && res.index == 0) || (res.result == 1 && res.index == 1);
+
+    EXPECT_TRUE(b);
+}
+
 TEST_F(TaskManagerTest, ParrallelComputationWhenAll)
 {
     parrallelComputationWhenAllTest();
+}
+
+TEST_F(TaskManagerTest, WhenAny)
+{
+    whenAnyTest();
 }
