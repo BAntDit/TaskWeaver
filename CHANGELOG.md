@@ -1,3 +1,9 @@
+## 0.3.0 (2025-03-25)
+
+### Feat
+
+- **TaskWeaver**: adds utility function when_any.
+
 ## 0.2.0 (2025-03-25)
 
 ### Feat
