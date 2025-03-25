@@ -16,12 +16,11 @@ manager to create and share all your native binaries.
 
 1. Install conan: [Installation instruction](https://docs.conan.io/2/installation.html)
 
-2. Install metrix: 
-    - `git clone git@github.com:BAntDit/easy-mp.git` - clone
-    - `conan install . -s build_type=Release --build=missing --output-folder=cmake-build-release` - install
-    - `sudo make install`
+2. Clone project: `git clone git@github.com:BAntDit/TaskWeaver.git`
 
-3. Setup project: `conan install . -s build_type=<Debug|Release> --build=missing --output-folder=<Output folder>`
+3. Install dependencies: `conan install . -s build_type=<Debug|Release> --build=missing --output-folder=<Output folder>`
+
+4. Update cmake cache: `cmake --preset conan-<release|debug>`
 
 ## Version 
 
