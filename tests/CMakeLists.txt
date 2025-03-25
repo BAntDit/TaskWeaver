@@ -36,3 +36,5 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE TESTING)
 
 add_test(NAME taskweaver-test COMMAND ${PROJECT_NAME})
 
+target_link_libraries(${PROJECT_NAME} TaskWeaver)
+
