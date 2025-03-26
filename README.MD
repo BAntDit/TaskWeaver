@@ -27,3 +27,6 @@ manager to create and share all your native binaries.
 v0.3.0.0
 
 [changelog](CHANGELOG.md)
+
+## License
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
