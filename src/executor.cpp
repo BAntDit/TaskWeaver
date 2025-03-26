@@ -24,18 +24,6 @@ namespace taskweaver {
 namespace {
 thread_local Executor* _mainThreadExecutor = nullptr;
 thread_local Executor* _threadExecutor = nullptr;
-
-auto randomExecutorIndex(size_t executorCount) -> size_t
-{
-    assert(executorCount > 0);
-
-    static thread_local auto rd = std::random_device();
-    static thread_local auto generator = std::default_random_engine{ rd() };
-
-    std::uniform_int_distribution<int32_t> distribution(0, static_cast<int>(executorCount) - 1);
-
-    return static_cast<size_t>(distribution(generator));
-}
 }
 
 /*static*/ auto Executor::IsInMainThread() -> bool
@@ -135,13 +123,17 @@ auto Executor::PendingTask() -> std::optional<Task>
     if (auto ownTask = Queue().TryPop()) {
         task = std::move(*ownTask.value());
     } else {
-        auto executorCount = TaskManager().ExecutorCount();
-        auto executorIndex = randomExecutorIndex(executorCount);
-        auto& executors = TaskManager().Executors();
-        auto& executor = executors[executorIndex];
+        for (auto i = size_t{0}, count = static_cast<size_t>(TaskManager().ExecutorCount()); i < count; i++) {
+            auto& executors = TaskManager().Executors();
+            auto& executor = executors[i];
 
-        if (auto stolenTask = executor.Queue().TrySteal()) {
-            task = std::move(*stolenTask.value());
+            if (executor.OwnerThreadId() == std::this_thread::get_id())
+                continue;
+
+            if (auto stolenTask = executor.Queue().TrySteal()) {
+                task = std::move(*stolenTask.value());
+                break;
+            }
         }
     }
 
