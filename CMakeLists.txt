@@ -26,6 +26,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
             -Wall
             -Wextra
             -Wfatal-errors
+            --param destructive-interference-size=64
     )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(${PROJECT_NAME} PRIVATE
