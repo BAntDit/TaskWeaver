@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.10)
 project(TaskWeaver VERSION 0.3.0.0)
 
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
@@ -13,6 +13,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS OFF
+        LINKER_LANGUAGE CXX
 
         COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -fPIC"
 
@@ -61,6 +62,11 @@ install(EXPORT ${PROJECT_NAME}Targets
 
 # Create a config file
 include(CMakePackageConfigHelpers)
+configure_package_config_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
 
 write_basic_package_version_file(
         ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
@@ -79,4 +85,7 @@ include(ClangFormat.cmake)
 set(ALL_FILES_TO_ADJUST_CODESTYLE ${SOURCE_FILES} ${HEADER_FILES} ${TEST_SOURCES} ${TEST_HEADERS})
 CODE_STYLE_CORRECTION("${ALL_FILES_TO_ADJUST_CODESTYLE}")
 
-add_subdirectory("tests")
+option(TESTS "whether needs to build tests" OFF)
+if (${TESTS})
+    add_subdirectory("tests")
+endif()
