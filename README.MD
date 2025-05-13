@@ -18,9 +18,11 @@ manager to create and share all your native binaries.
 
 2. Clone project: `git clone git@github.com:BAntDit/TaskWeaver.git`
 
-3. Install dependencies: `conan install . -s build_type=<Debug|Release> --build=missing --output-folder=<Output folder>`
+3. Install dependencies: `conan install . -s compiler.cppstd=20 -s build_type=<Debug|Release> --build=missing --output-folder=<Output folder>`
 
-4. Update cmake cache: `cmake --preset conan-<release|debug>`
+4. Update cmake cache: `cmake --preset <preset-name> -G Ninja`
+
+5. Deploy to local conan cache: `conan create . -s build_type=<Debug|Release> -s compiler.cppstd=20`
 
 ## Version 
 
