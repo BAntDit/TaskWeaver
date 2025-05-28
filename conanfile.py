@@ -54,7 +54,10 @@ class TaskWeaverRecipe(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "TaskWeaver")
         self.cpp_info.set_property("cmake_target_name", "TaskWeaver::TaskWeaver")
 
-        self.cpp_info.libs = ["TaskWeaver"]
+        if self.settings.build_type == "Debug":
+            self.cpp_info.libs = ["TaskWeaver_d"]
+        else:
+            self.cpp_info.libs = ["TaskWeaver"]
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
