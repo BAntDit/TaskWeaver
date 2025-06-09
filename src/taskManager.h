@@ -35,7 +35,7 @@ public:
     void Stop();
 
     template<typename F>
-    static auto SubmitTask(F&& f) -> std::enable_if_t<std::is_invocable_v<F>, std::future<std::result_of_t<F()>>>;
+    static auto SubmitTask(F&& f) -> std::enable_if_t<std::is_invocable_v<F>, std::future<std::invoke_result_t<F>>>;
 
 #if defined(ALLOW_THREAD_EXCEPTIONS_PROPAGATION)
     auto GetLastException() -> std::exception_ptr;
@@ -66,7 +66,7 @@ private:
 
 template<typename F>
 /*static*/ auto TaskManager::SubmitTask(F&& f)
-  -> std::enable_if_t<std::is_invocable_v<F>, std::future<std::result_of_t<F()>>>
+  -> std::enable_if_t<std::is_invocable_v<F>, std::future<std::invoke_result_t<F>>>
 {
     return Executor::ThreadExecutor().SubmitTask(std::forward<F>(f));
 }

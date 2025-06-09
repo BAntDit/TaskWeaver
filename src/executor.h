@@ -38,7 +38,7 @@ public:
     void RunOne();
 
     template<typename F>
-    auto SubmitTask(F&& f) -> std::enable_if_t<std::is_invocable_v<F>, std::future<std::result_of_t<F()>>>;
+    auto SubmitTask(F&& f) -> std::enable_if_t<std::is_invocable_v<F>, std::future<std::invoke_result_t<F>>>;
 
     [[nodiscard]] auto OwnerThreadId() const -> std::thread::id { return threadId_; }
 
@@ -77,11 +77,11 @@ private:
 };
 
 template<typename F>
-auto Executor::SubmitTask(F&& f) -> std::enable_if_t<std::is_invocable_v<F>, std::future<std::result_of_t<F()>>>
+auto Executor::SubmitTask(F&& f) -> std::enable_if_t<std::is_invocable_v<F>, std::future<std::invoke_result_t<F>>>
 {
     assert(CanSubmit());
 
-    using result_type_t = std::result_of_t<F()>;
+    using result_type_t = std::invoke_result_t<F>;
 
     auto* task = std::add_pointer_t<Task>{ nullptr };
 
